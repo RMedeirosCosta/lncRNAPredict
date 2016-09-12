@@ -1,0 +1,59 @@
+import re
+from sys import argv
+
+def main():
+
+        #fasta file
+        file_fasta = open(argv[1], "r")
+
+        with open(argv[1], 'r') as f:
+            content = f.readlines()[1:]
+        fasta_content = "".join(content).replace("\n","")
+
+        #gtf file
+        file_gtf = open(argv[2], "r")
+        gtf = file_gtf.readlines()
+
+        #organism_informatiom
+        organism = argv[3]
+
+        #counting lines in gtf file
+        def contar_linhas_arquivo(arq):
+            with open(arq, 'r') as f:
+                t = len(f.readlines())
+                f.close()
+                return (t)
+
+        linhas = contar_linhas_arquivo(argv[2])
+        start_intron = []
+        end_intron = []
+        gene_id = []
+        transcript_id = []
+
+        for line in gtf:
+            start_intron.append(int(line.split()[3]))
+            end_intron.append( int (line.split()[4]) )
+            gene_id.append(line.split()[6])
+            transcript_id.append(line.split()[8])
+
+        aux = []
+        for j in range(linhas-1):
+            aux = start_intron[j]
+
+        s_intron = []
+        e_intron = []
+        for i in range(linhas-1):
+            aux = start_intron[i+1]
+            #print 'INTRON', i, '-> Start: ', end_intron[i] + 1, ' End: ', aux-1
+            s_intron.append(int (end_intron[i] + 1))
+            e_intron.append(int (aux-1))
+
+
+        #Getting the sequences
+        print '> INTRON IDENTIFICATION <'
+        for k in range(linhas-1):
+
+            print '> Organism: ' + organism + ' | Gene Id:', gene_id[k],' | Gene Id:', transcript_id[k], ' | Intron:',k,'| Start:' ,s_intron[k],' - End:' , e_intron[k]
+            print fasta_content[ s_intron[k]: e_intron[k]+1  ] + '\n'
+
+main()
